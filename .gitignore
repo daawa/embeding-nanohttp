@@ -9,6 +9,7 @@
 .externalNativeBuild
 .idea/modules.xml
 .idea/compiler.xml
-
+.idea/
 misc.xml
 gradle.xml
+runConfigurations.xml
