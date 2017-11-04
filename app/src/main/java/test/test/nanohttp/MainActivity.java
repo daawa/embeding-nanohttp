@@ -1,27 +1,15 @@
 package test.test.nanohttp;
 
-import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.nanohttpd.protocols.http.NanoHTTPD;
-import org.nanohttpd.protocols.http.response.Response;
-import org.nanohttpd.protocols.http.response.Status;
-import org.nanohttpd.samples.http.HelloServer;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.FileNameMap;
-import java.net.URLConnection;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
+
+import test.test.nanohttp.server.HelloServer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
 
         final WebView webView = (WebView) findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+
+        WebView.setWebContentsDebuggingEnabled(true);
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -39,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        HelloServer server = new HelloServer();
+        HelloServer server = new HelloServer(this);
 
         try {
             server.start();
@@ -50,73 +41,12 @@ public class MainActivity extends AppCompatActivity {
         webView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                webView.loadUrl("http://localhost:8080/dummy");
+                webView.loadUrl("http://localhost:8080/index.html");
             }
         }, 1000);
 
     }
 
 
-    public static final String
-            MIME_PLAINTEXT = "text/plain",
-            MIME_HTML = "text/html",
-            MIME_JS = "application/javascript",
-            MIME_CSS = "text/css",
-            MIME_PNG = "image/png",
-            MIME_DEFAULT_BINARY = "application/octet-stream",
-            MIME_XML = "text/xml";
 
-    String TAG = "TEST STATIC FILE";
-    Context mContext = this;
-
-    public Response serve(String uri, String method, Properties header) {
-        Log.d(TAG, "SERVE ::  URI " + uri);
-        final StringBuilder buf = new StringBuilder();
-        for (Map.Entry<Object, Object> kv : header.entrySet())
-            buf.append(kv.getKey() + " : " + kv.getValue() + "\n");
-        InputStream mbuffer = null;
-
-
-        try {
-            if (uri != null) {
-
-                if (uri.contains(".js")) {
-                    mbuffer = mContext.getAssets().open(uri.substring(1));
-                    return Response.newChunkedResponse(Status.OK, MIME_JS, mbuffer);
-                } else if (uri.contains(".css")) {
-                    mbuffer = mContext.getAssets().open(uri.substring(1));
-                    return Response.newChunkedResponse(Status.OK, MIME_CSS, mbuffer);
-
-                } else if (uri.contains(".png")) {
-                    mbuffer = mContext.getAssets().open(uri.substring(1));
-                    // HTTP_OK = "200 OK" or HTTP_OK = Status.OK;(check comments)
-                    return Response.newChunkedResponse(Status.OK, MIME_PNG, mbuffer);
-                } else if (uri.contains("/mnt/sdcard")) {
-                    Log.d(TAG, "request for media on sdCard " + uri);
-                    File request = new File(uri);
-                    mbuffer = new FileInputStream(request);
-                    FileNameMap fileNameMap = URLConnection.getFileNameMap();
-                    String mimeType = fileNameMap.getContentTypeFor(uri);
-
-                    Response streamResponse = Response.newChunkedResponse(Status.OK, mimeType, mbuffer);
-                    Random rnd = new Random();
-                    String etag = Integer.toHexString(rnd.nextInt());
-                    streamResponse.addHeader("ETag", etag);
-                    streamResponse.addHeader("Connection", "Keep-alive");
-
-                    return streamResponse;
-                } else {
-                    mbuffer = mContext.getAssets().open("index.html");
-                    return Response.newChunkedResponse(Status.OK, MIME_HTML, mbuffer);
-                }
-            }
-
-        } catch (IOException e) {
-            Log.d(TAG, "Error opening file" + uri.substring(1));
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
 }
