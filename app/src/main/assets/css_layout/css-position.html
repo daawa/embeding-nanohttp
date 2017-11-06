@@ -1,0 +1,93 @@
+
+
+<p> default (static), 及普通流布局方式 </p>
+<div style="border: solid 1px #0e0; width:100%;">
+        <div style="position: relative;height: 100px; width: 100px; background-color:Red; margin-left: 20px;">
+        </div>
+
+        <div style="box-sizing:border-box; height: 200px; width: 200px; background-color: Green; top:20px; right:20px; margin-left:20px;padding:30px;">
+			<div style=" bottom:20px; height: 50px; width: 50px; background-color: Yellow;" > </div>       
+		</div>
+
+        <div style="height: 100px; width: 100px; background-color: Red;margin-top:10px;">
+        </div>
+
+        <div style=" left:30px;height: 100px; width: 100px; background-color: Purple;margin-top:10px;">
+        </div>
+
+      
+    </div>
+
+
+<br/><br/>
+<p id="top"> relative 、absolute、fixed布局，及其对普通流布局影响 </p>
+<div style="margin-top:20px;border: solid 1px #0e0; width:100%;">
+        <div style="position: relative;height: 100px; width: 100px; background-color: Red;margin-left: 20px;">
+        </div>
+
+        <div style="box-sizing:border-box; height: 200px; width: 200px; background-color: Green; position:relative; top:20px; right:10px; margin-left:20px;padding:30px;">
+			<div style="position: absolute; bottom:20px; height: 50px; width: 50px; background-color: Yellow;" > </div>       
+		</div>
+
+        <div style="height: 100px; width: 100px; background-color: Red;margin-top:10px;">
+        </div>
+
+        <div style="position:absolute; top: 30px; right:30px;height: 100px; width: 100px; background-color: Purple; margin-top:10px;">
+        </div>
+
+        <div style="position:fixed; bottom:20px; right: 20px; height: 100px; width: 100px; background-color: Red;margin-top:10px; display: inline-block; line-height:100px; text-align: center;">
+            <a style=" text-align:center; "  href="#top"> Top </a>
+        </div>
+
+</div>
+
+
+<br/><br/>
+<p>float 布局</p>
+<div style="margin-bottom:300px;margin-top:20px; border: solid 5px #0e0; width:150px;">
+        <div style="height: 100px; width: 100px; background-color: Red;  float:right;">
+        </div>
+        <div style="height: 100px; width: 100px; background-color: Green; margin-left: 20px; float:left;">
+        </div>
+        <div style="height: 100px; width: 100px; background-color: Yellow;  float:right;">
+        </div>
+       
+</div>
+
+<br/>
+<p style="margin-top:10px;">float 布局与普通流布局的相互影响</p>
+<div style="margin-top:20px; border: solid 5px #a00; width:400px;">
+
+		<div style="height: 100px; width: 100px; background-color: Red;">
+        </div>
+        
+        <div style="height: 100px; width: 100px; background-color: Green;  float:left;">
+        </div>
+        <div style="height: 100px; width: 100px; background-color: Yellow;  float:left;">
+        </div>
+    
+</div>
+
+<p style="margin-top:120px;">下面的红色框是普通流元素，被float元素盖住了</p>
+<div style=" border: solid 5px #a00; width:100%;">
+        
+        <div style="height: 100px; width: 100px; background-color: Green;  float:left;">
+        </div>
+        <div style="height: 100px; width: 100px; background-color: Yellow;  float:left;">
+        </div>
+
+        <div style="height: 120px; width: 120px; background-color: Red; margin: 20px">
+        </div>
+</div>
+
+<p>使用clear属性可使其不被float元素覆盖</p>
+<div style="margin-top:20px; border: solid 5px #a00; width:100%;">
+        
+        <div style="height: 100px; width: 100px; background-color: Green;  float:left;">
+        </div>
+        <div style="height: 100px; width: 100px; background-color: Yellow;  float:left;">
+        </div>
+
+        <div style="height: 120px; width: 120px; background-color: Red; margin:20px; clear:both">
+        </div>
+</div>
