@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="fetch.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <style type="text/css">
+        .content {
+            border: solid 4px #eee;
+            box-sizing:border-box;
+            width: 100%;
+            padding:20px;
+            background-color:#ddd;
+        }
+    </style>
+</head>
+<body>
+<div>response:</div>
+<div class="content" id='response'>response would be shown here</div>
+
+<script>
+    var res = document.querySelector("#response");
+    var result = fetch('https://api.github.com')
+    result.then(function(response) {
+      console.log('response', response)
+      console.log('header', response.headers.get('Content-Type'))
+      return response.text()
+    }).then(function(text) {
+      console.log('got text', text)
+      res.innerHTML= ("<pre>" + text + "</pre>");
+    }).catch(function(ex) {
+      console.log('failed', ex)
+      res.innerHTML= ex;
+    })
+  </script>
+
+</body>
+</html>
