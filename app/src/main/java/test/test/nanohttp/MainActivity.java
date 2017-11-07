@@ -1,7 +1,12 @@
 package test.test.nanohttp;
 
+import android.net.ConnectivityManager;
+import android.net.Proxy;
+import android.net.ProxyInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
@@ -30,6 +35,18 @@ public class MainActivity extends AppCompatActivity {
                 return super.shouldOverrideUrlLoading(view, request);
             }
         });
+
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        String host;
+
+        if(Build.VERSION.SDK_INT > 22){
+            ProxyInfo proxy = manager.getDefaultProxy();
+            host = proxy.getHost();
+            Log.w("NanoHttp", "Proxy host:" + host);
+        }
+
+        //ProxySetting.setProxy(webView,"10.242.114.79", 8888, App.class.getName());
+        ProxySetting.revertBackProxy(webView,App.class.getName());
 
         if(App.server.wasStarted()) {
             webView.postDelayed(new Runnable() {
