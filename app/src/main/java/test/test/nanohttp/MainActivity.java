@@ -41,8 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(Build.VERSION.SDK_INT > 22){
             ProxyInfo proxy = manager.getDefaultProxy();
-            host = proxy.getHost();
-            Log.w("NanoHttp", "Proxy host:" + host);
+            if(proxy != null){ this.isFinishing();
+                host = proxy.getHost();
+                Log.w("NanoHttp", "Proxy host:" + host);
+            }
         }
 
         //ProxySetting.setProxy(webView,"10.242.114.79", 8888, App.class.getName());
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             webView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    webView.loadUrl("http://localhost:8080/index.html");
+                    webView.loadUrl("http://localhost:8080/www/index.html");
                 }
             }, 1000);
         } else {
