@@ -1,0 +1,99 @@
+<html>
+<head>
+  <script src="../jslib/vue.js"></script>
+  <style>
+  .div{
+    margin-top:20px;
+    border: 1px solid #eee;
+    padding: 6px;
+  }
+  .div::before{
+    content:"example: ";
+    color:blue;
+  }
+  </style>
+</head>
+
+<body>
+  <div> template example: </div>
+  <div id="example">
+  <my-component class="div" :pp = "{ msg:'msg from parent， 动态语法' }"></my-component>
+  <my-component class="div" pp = "{ msg:'msg from parent, 字面量语法'}" ></my-component>
+</div>
+
+<div class="div" id="counter-event-example">
+  counter-event-example
+  <p>{{ total }}</p>
+  <button-counter @increment="onIncrement"></button-counter>
+  <button-counter v-on:increment="onIncrement"></button-counter>
+</div>
+
+<component id='use-component' :is='view'></component>
+
+</body>
+
+<script type="text/javascript">
+// 注册
+// Vue.component('my-component', {
+//   template: '<div>A custom component!</div>'
+// });
+
+// 创建根实例
+new Vue({
+  el: '#example',
+  components:{
+    'my-component':{
+      template: '<div>A custom component! \
+                    <div> message: <span>{{message}}</span> </div>\
+                    <div>pp.message: <span>{{pp.msg}}</span></div> \
+                    <div>pp: <span>{{pp}}</span></div> \
+                  </div>',
+      data: function(){
+        return {message:" hi, this message is returned from template definition."};
+      },
+      props:['pp']
+    }
+  }
+
+});
+
+Vue.component("button-counter",{
+  template:'<button @click="incrementCounter">clicked {{counter}} times.</button>',
+  props:[],
+  data:function(){
+    return {counter:0}
+  },
+  methods:{
+    incrementCounter: function(){
+      this.counter++;
+      this.$emit('increment');
+    }
+  }
+});
+
+new Vue({
+  el: '#counter-event-example',
+  data:{
+    total:0
+  },
+  methods:{
+    onIncrement:function(){
+      this.total++;
+    }
+  }
+})
+
+var com = {
+  template: '<div>使用保留的<pre>component</pre>标签</div>'
+};
+
+new Vue({
+  el:'#use-component',
+  data:{
+    view: com
+  }
+});
+
+</script>
+
+</html>

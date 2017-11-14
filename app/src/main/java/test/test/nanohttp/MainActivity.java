@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     webView.loadUrl("http://localhost:8080/www/index.html");
                 }
-            }, 1000);
+            }, 20);
         } else {
             Toast.makeText(this, " server not started. ", Toast.LENGTH_LONG).show();
         }

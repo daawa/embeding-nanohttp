@@ -1,0 +1,105 @@
+<html>
+<head>
+  <script src="../jslib/vue.js"></script>
+  <style>
+  .div{
+    margin:26px;
+    border: 1px solid #0ba;
+    padding: 18px;
+  }
+  .div::before{
+    content:"example: ";
+    color:blue;
+  }
+  </style>
+</head>
+
+<body>
+  <div class="div" >
+    使用插槽分发内容
+    <div id="use-slot">
+      <parent-component1></parent-component1>
+    </div>
+  </div>
+
+  <div class="div" >
+    使用插槽分发内容， 组件中找不到匹配的slot内容被丢弃
+    <div id="use-slot2">
+      <parent-component1>
+        <p slot='content'>parent-component1组件内没有定义 name='content' 的slot， 此处内容被丢弃</p>
+      </parent-component1>
+    </div>
+  </div>
+
+  <div class="div" >
+    使用插槽分发内容 组件中找到匹配的slot内容被显示出来
+    <div id="use-slot3">
+      <parent-component2>
+        <p slot='content'>use-slot3; 编译作用域；</p>
+      </parent-component2>
+    </div>
+  </div>
+
+</body>
+
+<script>
+
+Vue.component("child-component", {
+  template: "<div> \
+  <h2>我是子组件的标题</h2> \
+  <slot> \
+    子组件默认插槽，只有在没有要分发的内容时才会显示。 \
+  </slot>  \
+  <slot name='content'> \
+    子组件内容插槽，只有在没有要分发的内容时才会显示。 \
+  </slot>  \
+</div>"
+});
+
+
+Vue.component("parent-component1", {
+  template: "<div> \
+    <h1>我是父组件的标题</h1>\
+    <child-component>\
+      <div slot='content'>\
+        <p>这是一些初始内容,来自父组件分发</p>\
+        <p>这是更多的初始内容</p>\
+      </div>\
+    </child-component>\
+  </div>"
+});
+
+Vue.component("parent-component2", {
+  template: "<div> \
+    <h1>我是父组件的标题</h1>\
+    <slot name='content'>content slot</slot>\
+    <child-component>\
+      <div slot='content'>\
+        <p>{{msg1}}</p>\
+        <p>{{msg2}}</p>\
+      </div>\
+    </child-component>\
+  </div>",
+  data: function () {
+    return {
+      msg1:"msg1,这是一些初始内容,来自父组件分发",
+      msg2:"msg2,这是更多的初始内容"
+    };
+  }
+});
+
+new Vue({
+  el:"#use-slot"
+});
+
+new Vue({
+  el:"#use-slot2"
+});
+
+new Vue({
+  el:"#use-slot3"
+});
+
+</script>
+
+<html>

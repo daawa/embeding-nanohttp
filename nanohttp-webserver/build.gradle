@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':core')
+    compile project(':nanohttp-core')
 }
 
 sourceCompatibility = "1.7"

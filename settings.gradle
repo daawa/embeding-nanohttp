@@ -1,1 +1,1 @@
-include ':app', ':core', ':websocket', ':webserver', ':nanolets', ':samples'
+include ':app', ':nanohttp-core', ':nanohttp-websocket', ':nanohttp-webserver', ':nanolets', ':samples'
