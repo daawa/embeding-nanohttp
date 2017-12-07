@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <script src="fetch.js"></script>
+    <script src="../lib/fetch.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <style type="text/css">
@@ -19,7 +19,7 @@
 <div>response:</div>
 <div class="content" id='response'>response would be shown here</div>
 
-<script>
+<script type="text/javascript">
     var res = document.querySelector("#response");
     var result = fetch('https://api.github.com')
     result.then(function(response) {
