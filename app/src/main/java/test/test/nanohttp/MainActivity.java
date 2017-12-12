@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         webView = (WebView) findViewById(R.id.web_view);
+        webView.setVerticalScrollBarEnabled(false);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setUseWideViewPort(false);
         webView.getSettings().setLoadWithOverviewMode(false);
@@ -89,13 +90,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //ProxySetting.setProxy(webView,"10.242.114.79", 8888, App.class.getName());
-        ProxySetting.revertBackProxy(webView,App.class.getName());
+        //ProxySetting.revertBackProxy(webView,App.class.getName());
 
         if(App.server.wasStarted()) {
             webView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    webView.loadUrl("http://localhost:8080/www/index.html");
+                    webView.loadUrl("http://" + App.me.HOST+ ":8080/www/index.html");
                 }
             }, 20);
         } else {

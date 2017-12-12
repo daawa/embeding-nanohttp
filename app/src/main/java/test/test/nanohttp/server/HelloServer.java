@@ -67,8 +67,8 @@ public class HelloServer extends NanoHTTPD {
         ServerRunner.run(HelloServer.class);
     }
 
-    public HelloServer(Context context) {
-        super(8080);
+    public HelloServer(Context context, String ip) {
+        super(ip, 8080);
         mContext = context;
     }
 
