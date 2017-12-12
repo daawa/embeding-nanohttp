@@ -84,25 +84,15 @@ public class HelloServer extends NanoHTTPD {
             return response;
         }
 
-        String msg = "<html><body><h1>Hello server</h1>\n";
-        Map<String, String> parms = session.getParms();
-        if (parms.get("username") == null) {
-            msg += "<form action='?' method='get'>\n" + "  <p>Your name: <input type='text' name='username'></p>\n" + "</form>\n";
-        } else {
-            msg += "<p>Hello, " + parms.get("username") + "!</p>";
-        }
-
-        msg += "</body>" +
-                "<script src='lib/js.js'></script>" +
-                "</html>\n";
+        String msg = "<html><body><h1>404 Not Found</h1> <div><span>" + uri + " </span></div></body></html>\n";
 
         return Response.newFixedLengthResponse(msg);
     }
 
 
     public static final String
-            MIME_PLAINTEXT = "text/plain",
-            MIME_HTML = "text/html",
+            MIME_PLAINTEXT = NanoHTTPD.MIME_PLAINTEXT,//"text/plain",
+            MIME_HTML = NanoHTTPD.MIME_HTML, //"text/html",
             MIME_JS = "application/javascript",
             MIME_CSS = "text/css",
             MIME_PNG = "image/png",
