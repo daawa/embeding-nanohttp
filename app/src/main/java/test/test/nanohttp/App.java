@@ -14,6 +14,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 import test.test.nanohttp.server.HelloServer;
+import test.test.nanohttp.server.TrackerUtil;
 
 /**
  * Created by zhangzhenwei on 2017/11/6.
@@ -31,6 +32,8 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         me = this;
+        TrackerUtil.start("server booting");
+
         String ip = getLocalAddress();
         Log.w(TAG, "local address:" + ip);
         ip = getWifiAddress();
@@ -43,6 +46,9 @@ public class App extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        TrackerUtil.end("server booted");
+
     }
 
     private String getWifiAddress(){

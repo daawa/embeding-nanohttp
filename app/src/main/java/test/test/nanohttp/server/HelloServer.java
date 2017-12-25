@@ -109,6 +109,8 @@ public class HelloServer extends NanoHTTPD {
             buf.append(kv.getKey() + " : " + kv.getValue() + "\n");
         }
 
+        TrackerUtil.start("");
+
         InputStream mBuffer;
 
         try {
@@ -124,6 +126,9 @@ public class HelloServer extends NanoHTTPD {
             } else if (uri.contains(".js")) {
                 try {
                     mBuffer = mContext.getAssets().open(uri.substring(1));
+
+                    TrackerUtil.end( "serve \"" + uri.toString() );
+
                     return Response.newChunkedResponse(Status.OK, MIME_JS, mBuffer);
                 } catch (IOException e) {
                     Log.d(TAG, "Error opening file" + uri.substring(1));
