@@ -1,39 +1,8 @@
 package test.test.nanohttp.server;
 
-/*
- * #%L
- * NanoHttpd-Samples
- * %%
- * Copyright (C) 2012 - 2015 nanohttpd
- * %%
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the nanohttpd nor the names of its contributors
- *    may be used to endorse or promote products derived from this software without
- *    specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- * #L%
- */
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.nanohttpd.protocols.http.IHTTPSession;
@@ -53,9 +22,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
-/**
- * An example of subclassing NanoHTTPD to make a custom HTTP server.
- */
+import okhttp3.Headers;
+import test.test.nanohttp.proxy.RequestProxy;
+
 public class HelloServer extends NanoHTTPD {
 
     /**
@@ -77,12 +46,51 @@ public class HelloServer extends NanoHTTPD {
         Method method = session.getMethod();
         String uri = session.getUri();
         Map<String, String> headers = session.getHeaders();
+
         LOG.info(method + " '" + uri + "' ");
 
-        Response response = serve(uri, method, headers);
-        if (response != null) {
-            return response;
+        Response response1 = serveStatic(uri, headers);
+        if (response1 != null) {
+            return response1;
         }
+
+        try {
+            okhttp3.Response response = RequestProxy.proxyReq(session);
+            if (response != null) {
+                byte[] bytes = response.body() == null ? (new byte[0]) : response.body().bytes();
+                int code = response.code();
+
+                if (response != null) {
+                    response1 = Response.newFixedLengthResponse(
+                            Status.lookup(code), response.body().contentType().toString(), bytes);
+                    Headers headers1 = response.headers();
+                    if(headers1 != null){
+                        for(String key :headers1.names()){
+                            String val = headers1.get(key);
+                            if(!TextUtils.isEmpty(val)){
+                                response1.addHeader(key,val);
+                            }
+                        }
+                    }
+
+                    return response1;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        //if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+//        Headers responseHeaders = response.headers();
+//        for (int i = 0; i < responseHeaders.size(); i++) {
+//            System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+//        }
+
+        //System.out.println(response.body().string());
+
 
         String msg = "<html><body><h1>404 Not Found</h1> <div><span>" + uri + " </span></div></body></html>\n";
 
@@ -96,13 +104,15 @@ public class HelloServer extends NanoHTTPD {
             MIME_JS = "application/javascript",
             MIME_CSS = "text/css",
             MIME_PNG = "image/png",
+            MIME_ICON = "image/x-icon",
+            MIME_IMAGE = "image/*",
             MIME_DEFAULT_BINARY = "application/octet-stream",
             MIME_XML = "text/xml";
 
     String TAG = "TEST STATIC FILE";
     Context mContext;
 
-    public Response serve(String uri, Method method, Map<String, String> header) {
+    private Response serveStatic(String uri, Map<String, String> header) {
         Log.d(TAG, "SERVE ::  URI " + uri);
         final StringBuilder buf = new StringBuilder();
         for (Map.Entry<String, String> kv : header.entrySet()) {
@@ -114,7 +124,7 @@ public class HelloServer extends NanoHTTPD {
         InputStream mBuffer;
 
         try {
-            if (uri.contains("html")) {
+            if (uri.contains(".html")) {
                 try {
                     mBuffer = mContext.getAssets().open(uri.substring(1));
                     return Response.newChunkedResponse(Status.OK, MIME_HTML, mBuffer);
@@ -127,7 +137,7 @@ public class HelloServer extends NanoHTTPD {
                 try {
                     mBuffer = mContext.getAssets().open(uri.substring(1));
 
-                    TrackerUtil.end( "serve \"" + uri.toString() );
+                    TrackerUtil.end("serve \"" + uri.toString());
 
                     return Response.newChunkedResponse(Status.OK, MIME_JS, mBuffer);
                 } catch (IOException e) {
@@ -149,10 +159,28 @@ public class HelloServer extends NanoHTTPD {
                 try {
                     mBuffer = mContext.getAssets().open(uri.substring(1));
                     return Response.newChunkedResponse(Status.OK, MIME_PNG, mBuffer);
-                } catch (IOException e){
+                } catch (IOException e) {
                     Log.d(TAG, "Error opening file" + uri.substring(1));
                     e.printStackTrace();
-                    return Response.newFixedLengthResponse(Status.NOT_FOUND,MIME_PNG, "");
+                    return Response.newFixedLengthResponse(Status.NOT_FOUND, MIME_PNG, "");
+                }
+            } else if (uri.contains(".gif")) {
+                try {
+                    mBuffer = mContext.getAssets().open(uri.substring(1));
+                    return Response.newChunkedResponse(Status.OK, MIME_IMAGE, mBuffer);
+                } catch (IOException e) {
+                    Log.d(TAG, "Error opening file" + uri.substring(1));
+                    e.printStackTrace();
+                    return Response.newFixedLengthResponse(Status.NOT_FOUND, MIME_PNG, "");
+                }
+            } else if (uri.contains(".ico")) {
+                try {
+                    mBuffer = mContext.getAssets().open("res/favicon.ico");
+                    return Response.newChunkedResponse(Status.OK, MIME_IMAGE, mBuffer);
+                } catch (IOException e) {
+                    Log.d(TAG, "Error opening file" + uri.substring(1));
+                    e.printStackTrace();
+                    return Response.newFixedLengthResponse(Status.NOT_FOUND, MIME_ICON, "");
                 }
             } else if (uri.contains("/mnt/sdcard")) {
                 Log.d(TAG, "request for media on sdCard " + uri);
