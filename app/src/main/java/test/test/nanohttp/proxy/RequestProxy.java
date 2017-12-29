@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.nanohttpd.protocols.http.IHTTPSession;
+import org.nanohttpd.protocols.http.response.Status;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,12 +14,15 @@ import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import test.test.nanohttp.server.TrackerUtil;
 
 /**
  * Created by zhangzhenwei on 2017/12/28.
  */
 
-// to fix CORS
+/**
+ * For fixing  web view's CORS limitations
+ */
 public class RequestProxy {
     private static final String TAG = "RequestProxy ";
     private static final OkHttpClient client = new OkHttpClient.Builder()
@@ -40,22 +44,28 @@ public class RequestProxy {
         if (session.getHeaders() != null) {
             //builder.headers(Headers.of(session.getHeaders()));
             Map<String, String> hs = session.getHeaders();
-            for(Map.Entry<String, String> entry : hs.entrySet()){
+            for (Map.Entry<String, String> entry : hs.entrySet()) {
                 String key = entry.getKey().toLowerCase();
-                if(key.contains("referer") || key.contains("host") || key.contains("http-client-ip") || key.contains("remote-addr")){
+                if (key.contains("referer")
+                        || key.contains("host")
+                        || key.contains("http-client-ip")
+                        || key.contains("remote-addr")
+                        || key.contains("accept-encoding")) {
                     continue;
                 }
-                builder.header(entry.getKey(),entry.getValue());
-                Log.w(TAG," header key:" + entry.getKey() + "\n value: " + entry.getValue());
+                builder.header(entry.getKey(), entry.getValue());
+
+                //Log.w(TAG," header key:" + entry.getKey() + "\n value: " + entry.getValue());
             }
         }
-        builder.header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36");
 
         builder.method(session.getMethod().name(), null)
                 .url(url);
 
         Request request = builder.build();
-        Log.w(TAG, "call: " + request.url().url().toString());
+
+        TrackerUtil.logRequest(request);
+
         try {
             Response response = client.newCall(request).execute();
             return response;
@@ -65,6 +75,44 @@ public class RequestProxy {
         }
 
         return null;
+
+    }
+
+    public static org.nanohttpd.protocols.http.response.Response convert2NanoResponse(Response response) {
+        if (response == null) return null;
+
+        org.nanohttpd.protocols.http.response.Response nanoResponse;
+
+
+        byte[] bytes = new byte[0];
+
+        try {
+            if (response.body() != null) {
+                bytes = response.body().bytes();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int code = response.code();
+
+
+        String contentType = (response.body() == null || response.body().contentType() == null) ? "text/plain" : response.body().contentType().toString();
+        nanoResponse = org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse(
+                Status.lookup(code), contentType, bytes);
+        Headers headers1 = response.headers();
+        if (headers1 != null) {
+            for (String key : headers1.names()) {
+                String val = headers1.get(key);
+                if (!TextUtils.isEmpty(val)) {
+                    nanoResponse.addHeader(key, val);
+                }
+            }
+        }
+
+        TrackerUtil.logResponse(response);
+
+        return nanoResponse;
 
     }
 
