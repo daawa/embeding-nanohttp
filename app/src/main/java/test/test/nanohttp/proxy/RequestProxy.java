@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.nanohttpd.protocols.http.IHTTPSession;
+import org.nanohttpd.protocols.http.request.Method;
 import org.nanohttpd.protocols.http.response.Status;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.Map;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import test.test.nanohttp.server.TrackerUtil;
 
@@ -31,10 +33,7 @@ public class RequestProxy {
 
     public static Response proxyReq(IHTTPSession session) {
 
-        session.getHeaders();
-        session.getMethod();
         String query = session.getQueryParameterString();
-        session.getUri();
         session.getParameters();
 
         String url = "https://m.mei.163.com" + session.getUri() + (TextUtils.isEmpty(query) ? "" : ("?" + query));
@@ -42,7 +41,6 @@ public class RequestProxy {
         Request.Builder builder = new Request.Builder();
 
         if (session.getHeaders() != null) {
-            //builder.headers(Headers.of(session.getHeaders()));
             Map<String, String> hs = session.getHeaders();
             for (Map.Entry<String, String> entry : hs.entrySet()) {
                 String key = entry.getKey().toLowerCase();
@@ -59,7 +57,13 @@ public class RequestProxy {
             }
         }
 
-        builder.method(session.getMethod().name(), null)
+        RequestBody body = null;
+        if(session.getMethod() == Method.POST){
+            Map<String, String> params = session.getParms();
+            body = RequestBody.create(null, getBodyString(params));
+        }
+
+        builder.method(session.getMethod().name(),body)
                 .url(url);
 
         Request request = builder.build();
@@ -114,6 +118,20 @@ public class RequestProxy {
 
         return nanoResponse;
 
+    }
+
+    private static String getBodyString(Map<String, String> map) {
+        StringBuilder builder = new StringBuilder();
+        if (map != null) {
+            for (String key : map.keySet()) {
+                builder.append(key).append("=").append(map.get(key)).append("&");
+            }
+            if (builder.length() > 0) {
+                builder.deleteCharAt(builder.length() - 1);
+            }
+        }
+
+        return builder.toString();
     }
 
 }
