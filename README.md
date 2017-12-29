@@ -54,4 +54,13 @@ nano 将发送请求 `https://real-server/api/trial`, 并将数据转回web view
 
 但是在我们的nano app中， 它应该重定向到 `http://localhost/app2/index.html?some_id`, 因为详情页spa 在我们nano app中是存在的.
 
-为解决这个问题，需要梳理出服务端所有的单页spa， 然后在nano 建立相应的 router 规则
+**为解决这个问题，需要梳理出服务端所有的单页spa， 然后在nano 建立相应的 router 规则**
+
+<br/>
+
+### 4. todo: 扫描工具 - - - 找到单页应用的所有出口
+
+在单页应用内，跳转是通过使用事件绑定实现的（比如 `vue-router` 的做法）， 而带有 href 值的 普通 `<a>` 标签一般跳往单页应用外部的。
+
+可以根据这一规则，扫描出所有的出口
+

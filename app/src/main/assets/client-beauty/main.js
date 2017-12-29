@@ -1,212 +1,4 @@
-webpackJsonp([7],{
-
-/***/ 100:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _vue = __webpack_require__(44);
-
-var _vue2 = _interopRequireDefault(_vue);
-
-var _vuex = __webpack_require__(32);
-
-var _vuex2 = _interopRequireDefault(_vuex);
-
-var _fetch = __webpack_require__(53);
-
-var _fetch2 = _interopRequireDefault(_fetch);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var _require = __webpack_require__(144),
-    matchRule = _require.matchRule; /*
-                                     * @Author: maggiehe
-                                     * @Date:   2017-04-19 10:05:57
-                                     * @Last Modified by: maggiehe
-                                     * @Last Modified time: 2017-11-13 20:59:40
-                                     */
-
-_vue2.default.use(_vuex2.default);
-var store = new _vuex2.default.Store({
-  state: {
-    options: {}, // 路由参数
-    inApp: false, // 是否在App中
-    inWechat: false, // 是否在微信中
-    inMiniProgram: false, // 是否在小程序中
-    ua: null,
-    hideBanner: false,
-    path: '',
-    loading: false,
-    error: null,
-    resource: null,
-    isLogin: false,
-    currentUser: null,
-    shareInfo: null,
-    purePageTitle: null,
-    hasRefresh: false, // 是否进行下拉刷新
-    musicPlaying: null, // 背景音乐是否在播放
-    searchKeyword: '', // 搜索关键字
-    searchLayerVisible: false // 搜索浮层是否可见
-  },
-
-  actions: {
-    getResource: function getResource(_ref) {
-      var state = _ref.state,
-          commit = _ref.commit;
-
-      var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          callback = _ref2.callback,
-          loadingStatus = _ref2.loadingStatus;
-
-      var route = state.route;
-      var path = route.path,
-          fullPath = route.fullPath;
-      // 如果没有匹配的路由
-
-      var key = 'GET ' + path;
-
-      var _matchRule = matchRule(key),
-          match = _matchRule.match,
-          options = _matchRule.options;
-
-      if (!match) {
-        return;
-      }
-      // app外打开webview only页面时跳转到首页
-      if (!state.inApp && options.webviewOnly) {
-        location.href = '/';
-      }
-      if (loadingStatus) {
-        state.loading = true;
-      }
-      (0, _fetch2.default)('/api' + fullPath).then(function (data) {
-        commit('setResource', data);
-        callback && callback();
-      }, function (data) {
-        commit('setResource', data);
-        callback && callback();
-      });
-    }
-  },
-
-  mutations: {
-    setGlobalInfo: function setGlobalInfo(state, globalInfo) {
-      state.inApp = globalInfo.inApp;
-      state.inWechat = globalInfo.inWechat;
-      state.ua = globalInfo.ua;
-      state.hideBanner = globalInfo.hideBanner;
-    },
-    setRouteOptions: function setRouteOptions(state) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      // 更新路由参数
-      state.options = options;
-      var pageTitle = options.pageTitle;
-
-      if (pageTitle) {
-        state.purePageTitle = pageTitle;
-      }
-    },
-    setResource: function setResource(state, data) {
-      state.path = state.route.path;
-      if (!data.code) {
-        return;
-      }
-      if (data.code >= 200 && data.code < 400) {
-        var resource = data.result;
-        state.resource = resource;
-        var user = resource.user,
-            pageTitle = resource.pageTitle,
-            shareInfo = resource.shareInfo;
-
-        state.purePageTitle = pageTitle || '';
-        state.currentUser = user;
-        state.isLogin = !!(user && user.id);
-        state.shareInfo = shareInfo;
-        state.error = null;
-      } else {
-        var code = data.code,
-            msg = data.msg;
-
-        state.error = { code: code, msg: msg };
-        state.resource = null;
-      }
-      state.loading = false;
-    },
-    setError: function setError(state, data) {
-      state.error = data;
-      state.resource = null;
-    },
-    setCurrentUser: function setCurrentUser(state, data) {
-      state.currentUser = data;
-      state.isLogin = !!data;
-    },
-    setHasRefresh: function setHasRefresh(state, flag) {
-      state.hasRefresh = flag;
-    },
-    setShareInfo: function setShareInfo(state, shareInfo) {
-      state.shareInfo = Object.assign({}, state.shareInfo, shareInfo || {});
-    },
-    setPageTitle: function setPageTitle(state, pageTitle) {
-      state.purePageTitle = pageTitle;
-    },
-
-    // 设置背景音乐当前播放状态
-    setMusicStatus: function setMusicStatus(state, playing) {
-      state.musicPlaying = playing;
-    },
-
-    // 设置搜索关键字
-    setSearchKeyword: function setSearchKeyword(state, keyword) {
-      if (typeof keyword === 'string') {
-        state.searchKeyword = keyword;
-      }
-    },
-
-    // 打开/关闭搜索浮层
-    setSearchLayerVisible: function setSearchLayerVisible(state, visible) {
-      state.searchLayerVisible = visible;
-    },
-    setMiniProgram: function setMiniProgram(state, inMiniProgram) {
-      state.inMiniProgram = inMiniProgram;
-    }
-  },
-
-  getters: {
-    // 网络情况
-    isWifi: function isWifi(state, getters) {
-      var ua = state.ua;
-
-      var reg = /NETTYPE\/(\S+)/;
-      var match = ua.match(reg);
-      if (match) {
-        if (match[1] === 'WIFI') {
-          return true;
-        } else {
-          return false;
-        }
-      }
-      return null;
-    },
-    pageTitle: function pageTitle(state, getters) {
-      if (state.purePageTitle && !state.inApp && !state.options.noTitleSuffix) {
-        return state.purePageTitle + '－网易美学';
-      } else {
-        return state.purePageTitle || '网易美学';
-      }
-    }
-  }
-});
-
-exports.default = store;
-
-/***/ }),
+webpackJsonp([36],{
 
 /***/ 137:
 /***/ (function(module, exports, __webpack_require__) {
@@ -218,15 +10,15 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-__webpack_require__(158);
+__webpack_require__(160);
 
-var _app = __webpack_require__(145);
+var _app = __webpack_require__(148);
 
 var _vue = __webpack_require__(44);
 
 var _vue2 = _interopRequireDefault(_vue);
 
-var _beauty = __webpack_require__(147);
+var _beauty = __webpack_require__(149);
 
 var _beauty2 = _interopRequireDefault(_beauty);
 
@@ -273,13 +65,122 @@ exports.default = _app.app;
 
 /***/ }),
 
-/***/ 144:
+/***/ 138:
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(366)
+}
+var Component = __webpack_require__(31)(
+  /* script */
+  __webpack_require__(154),
+  /* template */
+  __webpack_require__(384),
+  /* styles */
+  injectStyle,
+  /* scopeId */
+  "data-v-3f8f65d8",
+  /* moduleIdentifier (server only) */
+  null
+)
+Component.options.__file = "/Users/zhome/Repo/beautyWap/src/components/appMore.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] appMore.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3f8f65d8", Component.options)
+  } else {
+    hotAPI.reload("data-v-3f8f65d8", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 140:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var pathToRegexp = __webpack_require__(150);
+var _vue = __webpack_require__(44);
+
+var _vue2 = _interopRequireDefault(_vue);
+
+__webpack_require__(141);
+
+var _vueLazyload = __webpack_require__(373);
+
+var _vueLazyload2 = _interopRequireDefault(_vueLazyload);
+
+var _appMore = __webpack_require__(138);
+
+var _appMore2 = _interopRequireDefault(_appMore);
+
+__webpack_require__(151);
+
+var _constant = __webpack_require__(53);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+* @Author: maggiehe
+* @Date:   2017-02-06 15:37:29
+ * @Last Modified by: maggiehe
+ * @Last Modified time: 2017-11-01 09:38:52
+* 全局配置
+*/
+var Util =  true ? __webpack_require__(69) : null;
+var FastClick =  true ? __webpack_require__(369) : null;
+
+_vue2.default.component('appMore', _appMore2.default);
+
+if (true) {
+  var blank = _constant.IMGS.BLANK + '?imageView&thumbnail=15y10';
+  _vue2.default.use(_vueLazyload2.default, {
+    error: blank,
+    loading: blank,
+    preLoad: 2
+  });
+  // 触发scroll事件
+  document.addEventListener('click', function () {
+    setTimeout(function () {
+      Util.dispatchEvent('scroll');
+    });
+  });
+  // 解决移动端click300ms延迟问题
+  new FastClick(document.body);
+}
+
+/***/ }),
+
+/***/ 141:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ 147:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var pathToRegexp = __webpack_require__(152);
 
 // 动态页
 var normalRules = {
@@ -410,7 +311,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 145:
+/***/ 148:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -427,15 +328,15 @@ var _vue2 = _interopRequireDefault(_vue);
 
 var _vuexRouterSync = __webpack_require__(388);
 
-var _store = __webpack_require__(100);
+var _store = __webpack_require__(99);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _router = __webpack_require__(148);
+var _router = __webpack_require__(150);
 
 var _router2 = _interopRequireDefault(_router);
 
-var _App = __webpack_require__(373);
+var _App = __webpack_require__(374);
 
 var _App2 = _interopRequireDefault(_App);
 
@@ -463,64 +364,7 @@ exports.app = app;
 
 /***/ }),
 
-/***/ 146:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _vue = __webpack_require__(44);
-
-var _vue2 = _interopRequireDefault(_vue);
-
-__webpack_require__(360);
-
-var _vueLazyload = __webpack_require__(372);
-
-var _vueLazyload2 = _interopRequireDefault(_vueLazyload);
-
-var _appMore = __webpack_require__(374);
-
-var _appMore2 = _interopRequireDefault(_appMore);
-
-__webpack_require__(149);
-
-var _constant = __webpack_require__(54);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*
-* @Author: maggiehe
-* @Date:   2017-02-06 15:37:29
- * @Last Modified by: maggiehe
- * @Last Modified time: 2017-11-01 09:38:52
-* 全局配置
-*/
-var Util =  true ? __webpack_require__(69) : null;
-var FastClick =  true ? __webpack_require__(368) : null;
-
-_vue2.default.component('appMore', _appMore2.default);
-
-if (true) {
-  var blank = _constant.IMGS.BLANK + '?imageView&thumbnail=15y10';
-  _vue2.default.use(_vueLazyload2.default, {
-    error: blank,
-    loading: blank,
-    preLoad: 2
-  });
-  // 触发scroll事件
-  document.addEventListener('click', function () {
-    setTimeout(function () {
-      Util.dispatchEvent('scroll');
-    });
-  });
-  // 解决移动端click300ms延迟问题
-  new FastClick(document.body);
-}
-
-/***/ }),
-
-/***/ 147:
+/***/ 149:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -592,7 +436,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 148:
+/***/ 150:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -610,13 +454,12 @@ var _vueRouter = __webpack_require__(387);
 
 var _vueRouter2 = _interopRequireDefault(_vueRouter);
 
-__webpack_require__(146);
+__webpack_require__(140);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// const Content = () => System.import('~/views/Content')
-var Login = function Login() {
-  return __webpack_require__.e/* import() */(5).then(__webpack_require__.bind(null, 391));
+var Content = function Content() {
+  return __webpack_require__.e/* import() */(26).then(__webpack_require__.bind(null, 391));
 }; /*
     * @Author: maggiehe
     * @Date:   2017-02-05 14:18:16
@@ -624,32 +467,161 @@ var Login = function Login() {
     * @Last Modified time: 2017-11-13 21:07:27
     */
 
-var TrialList = function TrialList() {
-  return __webpack_require__.e/* import() */(0).then(__webpack_require__.bind(null, 393));
+var Brand = function Brand() {
+  return __webpack_require__.e/* import() */(28).then(__webpack_require__.bind(null, 402));
 };
-// const Trial = () => System.import('~/views/trial/detail')
-// const TrialRule = () => System.import('~/views/trial/detail/Rule')
-var WebviewTest = function WebviewTest() {
+var Product = function Product() {
+  return __webpack_require__.e/* import() */(13).then(__webpack_require__.bind(null, 411));
+};
+var Tag = function Tag() {
+  return __webpack_require__.e/* import() */(9).then(__webpack_require__.bind(null, 417));
+};
+var TagKnowledge = function TagKnowledge() {
+  return __webpack_require__.e/* import() */(16).then(__webpack_require__.bind(null, 418));
+};
+var Event = function Event() {
+  return __webpack_require__.e/* import() */(17).then(__webpack_require__.bind(null, 404));
+};
+var Repo = function Repo() {
+  return __webpack_require__.e/* import() */(0).then(__webpack_require__.bind(null, 413));
+};
+var RepoScreenCapture = function RepoScreenCapture() {
+  return __webpack_require__.e/* import() */(21).then(__webpack_require__.bind(null, 414));
+};
+var RepoSogou = function RepoSogou() {
+  return __webpack_require__.e/* import() */(23).then(__webpack_require__.bind(null, 415));
+};
+var Note = function Note() {
+  return __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 408));
+};
+var NoteScreenCapture = function NoteScreenCapture() {
+  return __webpack_require__.e/* import() */(25).then(__webpack_require__.bind(null, 409));
+};
+var NoteSogou = function NoteSogou() {
+  return __webpack_require__.e/* import() */(27).then(__webpack_require__.bind(null, 410));
+};
+var Video = function Video() {
+  return __webpack_require__.e/* import() */(5).then(__webpack_require__.bind(null, 424));
+};
+var Question = function Question() {
+  return __webpack_require__.e/* import() */(1/* aggressive-merge */).then(__webpack_require__.bind(null, 412));
+};
+var Answer = function Answer() {
+  return __webpack_require__.e/* import() */(0/* aggressive-merge */).then(__webpack_require__.bind(null, 401));
+};
+var YanxuanActivity = function YanxuanActivity() {
+  return __webpack_require__.e/* import() */(19).then(__webpack_require__.bind(null, 392));
+};
+var CampusActivity = function CampusActivity() {
+  return __webpack_require__.e/* import() */(18).then(__webpack_require__.bind(null, 397));
+};
+var PechoinActivity = function PechoinActivity() {
+  return __webpack_require__.e/* import() */(10).then(__webpack_require__.bind(null, 398));
+};
+var AnniversaryActivityDetail = function AnniversaryActivityDetail() {
   return __webpack_require__.e/* import() */(4).then(__webpack_require__.bind(null, 394));
 };
+var AnniversaryActivityInvite = function AnniversaryActivityInvite() {
+  return __webpack_require__.e/* import() */(8).then(__webpack_require__.bind(null, 396));
+};
+var AnniversaryActivityGame = function AnniversaryActivityGame() {
+  return __webpack_require__.e/* import() */(2).then(__webpack_require__.bind(null, 393));
+};
+var AnniversaryActivityBoard = function AnniversaryActivityBoard() {
+  return __webpack_require__.e/* import() */(20).then(__webpack_require__.bind(null, 395));
+};
+var Login = function Login() {
+  return __webpack_require__.e/* import() */(34).then(__webpack_require__.bind(null, 406));
+};
+var TrialList = function TrialList() {
+  return __webpack_require__.e/* import() */(11).then(__webpack_require__.bind(null, 422));
+};
+var Trial = function Trial() {
+  return __webpack_require__.e/* import() */(15).then(__webpack_require__.bind(null, 421));
+};
+var TrialRule = function TrialRule() {
+  return __webpack_require__.e/* import() */(32).then(__webpack_require__.bind(null, 420));
+};
+var WebviewTest = function WebviewTest() {
+  return __webpack_require__.e/* import() */(31).then(__webpack_require__.bind(null, 425));
+};
 var VideoTest = function VideoTest() {
-  return __webpack_require__.e/* import() */(3).then(__webpack_require__.bind(null, 395));
+  return __webpack_require__.e/* import() */(30).then(__webpack_require__.bind(null, 426));
 };
 var skinTest = function skinTest() {
-  return __webpack_require__.e/* import() */(2).then(__webpack_require__.bind(null, 396));
+  return __webpack_require__.e/* import() */(29).then(__webpack_require__.bind(null, 427));
+};
+var Qixi = function Qixi() {
+  return __webpack_require__.e/* import() */(3).then(__webpack_require__.bind(null, 400));
+};
+var QixiShare = function QixiShare() {
+  return __webpack_require__.e/* import() */(12).then(__webpack_require__.bind(null, 399));
 };
 var animation = function animation() {
-  return __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 392));
+  return __webpack_require__.e/* import() */(22).then(__webpack_require__.bind(null, 419));
 };
-// const Index = () => System.import('~/views/index')
+var UserHomepage = function UserHomepage() {
+  return __webpack_require__.e/* import() */(7).then(__webpack_require__.bind(null, 423));
+};
+var Index = function Index() {
+  return __webpack_require__.e/* import() */(14).then(__webpack_require__.bind(null, 405));
+};
+var Search = function Search() {
+  return __webpack_require__.e/* import() */(6).then(__webpack_require__.bind(null, 416));
+};
+var Collects = function Collects() {
+  return __webpack_require__.e/* import() */(24).then(__webpack_require__.bind(null, 403));
+};
+var MiniProgramDownload = function MiniProgramDownload() {
+  return __webpack_require__.e/* import() */(33).then(__webpack_require__.bind(null, 407));
+};
 
 _vue2.default.use(_vueRouter2.default);
 
-var routes = [
-/* {
+var routes = [{
   path: '',
   component: Content,
   children: [{
+    path: '/brand/:id',
+    name: 'brand',
+    component: Brand
+  }, {
+    path: '/product/:id',
+    name: 'product',
+    component: Product
+  }, {
+    path: '/tag/:id',
+    name: 'tag',
+    component: Tag
+  }, {
+    path: '/tag/:id/knowledge',
+    name: 'tagKnowledge',
+    component: TagKnowledge
+  }, {
+    path: '/event/:id',
+    name: 'event',
+    component: Event
+  }, {
+    path: '/repo/:id',
+    name: 'repo',
+    component: Repo
+  }, {
+    path: '/note/:id',
+    name: 'note',
+    component: Note
+  }, {
+    path: '/video/:id',
+    name: 'video',
+    component: Video
+  }, {
+    path: '/question/:id',
+    name: 'question',
+    component: Question
+  }, {
+    path: '/answer/:id',
+    name: 'answer',
+    component: Answer
+  }, {
     path: '/trial/:id',
     name: 'trial',
     component: Trial
@@ -658,12 +630,43 @@ var routes = [
     name: 'trialRule',
     component: TrialRule
   }, {
+    path: '/user/:id',
+    name: 'userHomepage',
+    component: UserHomepage
+  }, {
     path: '/',
     name: 'Index',
     component: Index
+  }, {
+    path: '/search',
+    name: 'search',
+    component: Search
+  }, {
+    path: '/collects/:id',
+    name: 'collects',
+    component: Collects
   }]
-}, */
-{
+}, {
+  path: '/activity/20170309',
+  name: 'YanxuanActivity',
+  component: YanxuanActivity
+}, {
+  path: '/activity/campus',
+  name: 'campusActivity',
+  component: CampusActivity
+}, {
+  path: '/activity/pechoin',
+  name: 'pechoinActivity',
+  component: PechoinActivity
+}, {
+  path: '/activity/qixi',
+  name: 'qixi',
+  component: Qixi
+}, {
+  path: '/activity/qixi/:id',
+  name: 'qixiShare',
+  component: QixiShare
+}, {
   path: '/login',
   name: 'login',
   component: Login
@@ -691,6 +694,45 @@ var routes = [
   path: '/trial/list/myTrial',
   name: 'myTrial',
   component: TrialList
+}, {
+  path: '/repo/:id/screencapture',
+  name: 'repoScreenCapture',
+  component: RepoScreenCapture
+}, {
+  path: '/note/:id/screencapture',
+  name: 'noteScreenCapture',
+  component: NoteScreenCapture
+}, {
+  path: '/repo/:id/sogou',
+  name: 'repoSogou',
+  component: RepoSogou
+}, {
+  path: '/note/:id/sogou',
+  name: 'noteSogou',
+  component: NoteSogou
+}, {
+  // 周年活动游戏页
+  path: '/activity/anniversary/game',
+  name: 'anniversaryActivityGame',
+  component: AnniversaryActivityGame
+}, {
+  // 周年活动详情页
+  path: '/activity/anniversary',
+  alias: '/activity2/anniversary', // 兼容安卓系统消息
+  name: 'anniversaryActivityDetail',
+  component: AnniversaryActivityDetail
+}, {
+  path: '/activity/anniversary/invite/:id',
+  name: 'anniversaryActivityInvite',
+  component: AnniversaryActivityInvite
+}, {
+  path: '/activity/anniversary/boardList',
+  name: 'anniversaryActivityBoard',
+  component: AnniversaryActivityBoard
+}, {
+  path: '/miniProgram/download',
+  name: 'miniProgramDownload',
+  component: MiniProgramDownload
 }];
 
 var router = new _vueRouter2.default({
@@ -710,7 +752,7 @@ exports.default = router;
 
 /***/ }),
 
-/***/ 149:
+/***/ 151:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -741,7 +783,7 @@ if (typeof Object.assign !== 'function') {
 
 /***/ }),
 
-/***/ 151:
+/***/ 153:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -771,7 +813,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _vuex = __webpack_require__(32);
 
-var _fetch = __webpack_require__(53);
+var _fetch = __webpack_require__(54);
 
 var _fetch2 = _interopRequireDefault(_fetch);
 
@@ -787,8 +829,10 @@ var Util = inBrowser ? __webpack_require__(69) : null;
 exports.default = {
   computed: _extends({}, (0, _vuex.mapState)(['inApp', 'loading', 'error', 'resource', 'shareInfo']), {
     hasSearchBar: function hasSearchBar() {
-      return true;
-      // return this.$route.matched[0].path === ''
+      // return true;
+      var matched = this.$route.matched;
+      console.log('matched:' + matched);
+      return matched && matched[0] ? matched[0].path === '' : false;
     }
   }),
   watch: {
@@ -804,9 +848,9 @@ exports.default = {
 
     var matched = this.$router.getMatchedComponents(this.$route.path);
 
-    if (matched.length <= 0 || matched[0]) {
-      console.log("redirect from " + this.$route.path + " to /top");
-      this.$router.replace({ path: "/trial" });
+    if (matched.length <= 0) {
+      console.log("redirect from " + this.$route.path + " to /trial");
+      this.$router.replace({ path: "/" });
     } else {
       console.log("matched component :" + matched[0].name);
       this.refresh();
@@ -826,7 +870,10 @@ exports.default = {
         return;
       }
       this.$store.dispatch('getResource', {
-        loadingStatus: true
+        loadingStatus: true,
+        callback: function callback() {
+          console.log('\ngetResource for ' + this.$route.fullPath + " is done\n");
+        }
       });
     },
     refresh: function refresh() {
@@ -872,7 +919,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 152:
+/***/ 154:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -902,7 +949,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 153:
+/***/ 155:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1009,7 +1056,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 154:
+/***/ 156:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1032,7 +1079,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _vuex = __webpack_require__(32);
 
-var _fetch = __webpack_require__(53);
+var _fetch = __webpack_require__(54);
 
 var _fetch2 = _interopRequireDefault(_fetch);
 
@@ -1099,7 +1146,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 155:
+/***/ 157:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1109,7 +1156,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _fetch = __webpack_require__(53);
+var _fetch = __webpack_require__(54);
 
 var _fetch2 = _interopRequireDefault(_fetch);
 
@@ -1155,7 +1202,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 156:
+/***/ 158:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1318,7 +1365,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 157:
+/***/ 159:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1352,20 +1399,6 @@ exports.default = {
     }
   }
 };
-
-/***/ }),
-
-/***/ 360:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 361:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
 
 /***/ }),
 
@@ -1411,17 +1444,24 @@ exports.default = {
 
 /***/ }),
 
-/***/ 373:
+/***/ 368:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ 374:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(367)
+  __webpack_require__(368)
 }
 var Component = __webpack_require__(31)(
   /* script */
-  __webpack_require__(151),
+  __webpack_require__(153),
   /* template */
   __webpack_require__(386),
   /* styles */
@@ -1456,62 +1496,17 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 374:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-function injectStyle (ssrContext) {
-  if (disposed) return
-  __webpack_require__(365)
-}
-var Component = __webpack_require__(31)(
-  /* script */
-  __webpack_require__(152),
-  /* template */
-  __webpack_require__(384),
-  /* styles */
-  injectStyle,
-  /* scopeId */
-  "data-v-3f8f65d8",
-  /* moduleIdentifier (server only) */
-  null
-)
-Component.options.__file = "/Users/zhome/Repo/beautyWap/src/components/appMore.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] appMore.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-3f8f65d8", Component.options)
-  } else {
-    hotAPI.reload("data-v-3f8f65d8", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
 /***/ 375:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(366)
+  __webpack_require__(367)
 }
 var Component = __webpack_require__(31)(
   /* script */
-  __webpack_require__(153),
+  __webpack_require__(155),
   /* template */
   __webpack_require__(385),
   /* styles */
@@ -1552,11 +1547,11 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(363)
+  __webpack_require__(364)
 }
 var Component = __webpack_require__(31)(
   /* script */
-  __webpack_require__(154),
+  __webpack_require__(156),
   /* template */
   __webpack_require__(382),
   /* styles */
@@ -1597,11 +1592,11 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(361)
+  __webpack_require__(362)
 }
 var Component = __webpack_require__(31)(
   /* script */
-  __webpack_require__(155),
+  __webpack_require__(157),
   /* template */
   __webpack_require__(380),
   /* styles */
@@ -1642,11 +1637,11 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(364)
+  __webpack_require__(365)
 }
 var Component = __webpack_require__(31)(
   /* script */
-  __webpack_require__(156),
+  __webpack_require__(158),
   /* template */
   __webpack_require__(383),
   /* styles */
@@ -1687,11 +1682,11 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(362)
+  __webpack_require__(363)
 }
 var Component = __webpack_require__(31)(
   /* script */
-  __webpack_require__(157),
+  __webpack_require__(159),
   /* template */
   __webpack_require__(381),
   /* styles */
@@ -2052,10 +2047,83 @@ module.exports = __webpack_require__(137);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+/*
+* @Author: maggiehe
+* @Date:   2017-02-20 10:06:52
+ * @Last Modified by: maggiehe
+ * @Last Modified time: 2017-11-14 09:58:13
+*/
+
+var IMGS = exports.IMGS = {
+  AVATAR: '//beauty.nosdn.127.net/beauty/img/afc1a238-ee44-45d9-b4b5-a9361f6ae99d.png',
+  LOGO: '//beauty.nosdn.127.net/beauty/img/5937b030-cee3-44f6-b0d8-dd9f137b2a34.png',
+  NO_PRODUCT: '//beauty.nosdn.127.net/beauty/img/bc22975f-be79-4826-be33-bca73ef79925.png',
+  SPIRIT: '//beauty.nosdn.127.net/beauty/img/166a7880-7f0c-44b0-b027-4656c66814ee.png',
+  DEFAULT_IMG: '//beauty.nosdn.127.net/beauty/img/c042ddec-d96f-47a5-a7bd-a7de28886746..png',
+  DEFAULT_IMG_TRANSP: '//beauty.nosdn.127.net/beauty/img/4d6de58c-672d-40c9-9e92-b9a71e62026e.png', // 半透明产品默认图
+  BLANK: '//beauty.nosdn.127.net/beauty/img/6ea29d15-b265-473c-bdaf-c4db5c9e8e1f.png',
+  // 个人主页背景
+  DEFAULT_USER_BACKGROUND: '//beauty.nosdn.127.net/beauty/img/507a0ecc-ae46-4e2e-929b-0be0750703a6.png',
+  NO_REPO: '//beauty.nosdn.127.net/beauty/img/9a9fe2dc-69e4-43ff-9113-4d29916623f8.png',
+  NO_NOTE: '//beauty.nosdn.127.net/beauty/img/a16d93bd-d5b1-4ef8-ae1e-22f3a0036b5e.png',
+  VIDEO_DEFAULT_IMG: '//beauty.nosdn.127.net/beauty/img/e339e794-90e2-4afd-8d05-f2f12dfeb719.jpg',
+  LOADING: '//beauty.nosdn.127.net/beauty/img/42bb21f1-8ae5-4d32-b5fc-c8a33c6d3ec8.gif',
+  // 视频插入产品 箭头
+  ARROW: 'https://beauty.nosdn.127.net/beauty/img/23ed16d8-1393-48f9-9134-fcb794775f6a..png'
+};
+
+var RES_TYPES = exports.RES_TYPES = {
+  USER: 1,
+  NOTE: 2,
+  REPO: 3,
+  PRODUCT: 4,
+  BRAND: 5,
+  TAG: 6,
+  DYNAMIC: 7, // 动态
+  RANK: 8, // 排行榜
+  ACTIVITY: 9,
+  TEXT: 10,
+  URL_SCHEME: 11,
+  COMMENT: 12,
+  SKU: 13,
+  QIYU: 14, // 七鱼
+  IMAGE: 15,
+  NOTIFY: 16, // 通知
+  VIDEO: 20,
+  QUESTION: 30,
+  ANSWER: 35,
+  TRIAL: 40,
+  APP: 99 // app应用
+
+
+  // 统计事件
+};var STATISTICS_ACTIONS = exports.STATISTICS_ACTIONS = {
+  SHARE_TO_WECAHT_APP_MESSAGE: "shareToWechatAppMessage",
+  SHARE_TO_WECAHT_TIMELINE: "shareToWechatTimeline"
+};
+
+var DOMAINS = exports.DOMAINS = {
+  WEB: 'https://mei.163.com',
+  H5: 'https://m.mei.163.com',
+  CLIENT: ''
+};
+exports.default = { IMGS: IMGS, RES_TYPES: RES_TYPES, STATISTICS_ACTIONS: STATISTICS_ACTIONS, DOMAINS: DOMAINS };
+
+/***/ }),
+
+/***/ 54:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 __webpack_require__(389);
 
-var _constant = __webpack_require__(54);
+var _constant = __webpack_require__(53);
 
 /*
  * fetch
@@ -2141,79 +2209,6 @@ exports.default = Fetch;
 
 /***/ }),
 
-/***/ 54:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-/*
-* @Author: maggiehe
-* @Date:   2017-02-20 10:06:52
- * @Last Modified by: maggiehe
- * @Last Modified time: 2017-11-14 09:58:13
-*/
-
-var IMGS = exports.IMGS = {
-  AVATAR: '//beauty.nosdn.127.net/beauty/img/afc1a238-ee44-45d9-b4b5-a9361f6ae99d.png',
-  LOGO: '//beauty.nosdn.127.net/beauty/img/5937b030-cee3-44f6-b0d8-dd9f137b2a34.png',
-  NO_PRODUCT: '//beauty.nosdn.127.net/beauty/img/bc22975f-be79-4826-be33-bca73ef79925.png',
-  SPIRIT: '//beauty.nosdn.127.net/beauty/img/166a7880-7f0c-44b0-b027-4656c66814ee.png',
-  DEFAULT_IMG: '//beauty.nosdn.127.net/beauty/img/c042ddec-d96f-47a5-a7bd-a7de28886746..png',
-  DEFAULT_IMG_TRANSP: '//beauty.nosdn.127.net/beauty/img/4d6de58c-672d-40c9-9e92-b9a71e62026e.png', // 半透明产品默认图
-  BLANK: '//beauty.nosdn.127.net/beauty/img/6ea29d15-b265-473c-bdaf-c4db5c9e8e1f.png',
-  // 个人主页背景
-  DEFAULT_USER_BACKGROUND: '//beauty.nosdn.127.net/beauty/img/507a0ecc-ae46-4e2e-929b-0be0750703a6.png',
-  NO_REPO: '//beauty.nosdn.127.net/beauty/img/9a9fe2dc-69e4-43ff-9113-4d29916623f8.png',
-  NO_NOTE: '//beauty.nosdn.127.net/beauty/img/a16d93bd-d5b1-4ef8-ae1e-22f3a0036b5e.png',
-  VIDEO_DEFAULT_IMG: '//beauty.nosdn.127.net/beauty/img/e339e794-90e2-4afd-8d05-f2f12dfeb719.jpg',
-  LOADING: '//beauty.nosdn.127.net/beauty/img/42bb21f1-8ae5-4d32-b5fc-c8a33c6d3ec8.gif',
-  // 视频插入产品 箭头
-  ARROW: 'https://beauty.nosdn.127.net/beauty/img/23ed16d8-1393-48f9-9134-fcb794775f6a..png'
-};
-
-var RES_TYPES = exports.RES_TYPES = {
-  USER: 1,
-  NOTE: 2,
-  REPO: 3,
-  PRODUCT: 4,
-  BRAND: 5,
-  TAG: 6,
-  DYNAMIC: 7, // 动态
-  RANK: 8, // 排行榜
-  ACTIVITY: 9,
-  TEXT: 10,
-  URL_SCHEME: 11,
-  COMMENT: 12,
-  SKU: 13,
-  QIYU: 14, // 七鱼
-  IMAGE: 15,
-  NOTIFY: 16, // 通知
-  VIDEO: 20,
-  QUESTION: 30,
-  ANSWER: 35,
-  TRIAL: 40,
-  APP: 99 // app应用
-
-
-  // 统计事件
-};var STATISTICS_ACTIONS = exports.STATISTICS_ACTIONS = {
-  SHARE_TO_WECAHT_APP_MESSAGE: "shareToWechatAppMessage",
-  SHARE_TO_WECAHT_TIMELINE: "shareToWechatTimeline"
-};
-
-var DOMAINS = exports.DOMAINS = {
-  WEB: 'https://mei.163.com',
-  H5: 'https://m.mei.163.com',
-  CLIENT: ''
-};
-exports.default = { IMGS: IMGS, RES_TYPES: RES_TYPES, STATISTICS_ACTIONS: STATISTICS_ACTIONS, DOMAINS: DOMAINS };
-
-/***/ }),
-
 /***/ 69:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2232,13 +2227,13 @@ var _vue = __webpack_require__(44);
 
 var _vue2 = _interopRequireDefault(_vue);
 
-var _store = __webpack_require__(100);
+var _store = __webpack_require__(99);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _constant = __webpack_require__(54);
+var _constant = __webpack_require__(53);
 
-var _constant2 = __webpack_require__(54);
+var _constant2 = __webpack_require__(53);
 
 var _jsUtil = __webpack_require__(98);
 
@@ -2636,6 +2631,215 @@ _.getOffsetTop = function (ele) {
   return offsetTop;
 };
 module.exports = _;
+
+/***/ }),
+
+/***/ 99:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _vue = __webpack_require__(44);
+
+var _vue2 = _interopRequireDefault(_vue);
+
+var _vuex = __webpack_require__(32);
+
+var _vuex2 = _interopRequireDefault(_vuex);
+
+var _fetch = __webpack_require__(54);
+
+var _fetch2 = _interopRequireDefault(_fetch);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _require = __webpack_require__(147),
+    matchRule = _require.matchRule; /*
+                                     * @Author: maggiehe
+                                     * @Date:   2017-04-19 10:05:57
+                                     * @Last Modified by: maggiehe
+                                     * @Last Modified time: 2017-11-13 20:59:40
+                                     */
+
+_vue2.default.use(_vuex2.default);
+var store = new _vuex2.default.Store({
+  state: {
+    options: {}, // 路由参数
+    inApp: false, // 是否在App中
+    inWechat: false, // 是否在微信中
+    inMiniProgram: false, // 是否在小程序中
+    ua: null,
+    hideBanner: false,
+    path: '',
+    loading: false,
+    error: null,
+    resource: null,
+    isLogin: false,
+    currentUser: null,
+    shareInfo: null,
+    purePageTitle: null,
+    hasRefresh: false, // 是否进行下拉刷新
+    musicPlaying: null, // 背景音乐是否在播放
+    searchKeyword: '', // 搜索关键字
+    searchLayerVisible: false // 搜索浮层是否可见
+  },
+
+  actions: {
+    getResource: function getResource(_ref) {
+      var state = _ref.state,
+          commit = _ref.commit;
+
+      var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          callback = _ref2.callback,
+          loadingStatus = _ref2.loadingStatus;
+
+      var route = state.route;
+      var path = route.path,
+          fullPath = route.fullPath;
+      // 如果没有匹配的路由
+
+      var key = 'GET ' + path;
+
+      var _matchRule = matchRule(key),
+          match = _matchRule.match,
+          options = _matchRule.options;
+
+      if (!match) {
+        return;
+      }
+      // app外打开webview only页面时跳转到首页
+      if (!state.inApp && options.webviewOnly) {
+        location.href = '/';
+      }
+      if (loadingStatus) {
+        state.loading = true;
+      }
+      (0, _fetch2.default)('/api' + fullPath).then(function (data) {
+        commit('setResource', data);
+        callback && callback();
+        console.log("\nstate.resource: " + state.resource);
+      }, function (data) {
+        commit('setResource', data);
+        callback && callback();
+      });
+    }
+  },
+
+  mutations: {
+    setGlobalInfo: function setGlobalInfo(state, globalInfo) {
+      state.inApp = globalInfo.inApp;
+      state.inWechat = globalInfo.inWechat;
+      state.ua = globalInfo.ua;
+      state.hideBanner = globalInfo.hideBanner;
+    },
+    setRouteOptions: function setRouteOptions(state) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      // 更新路由参数
+      state.options = options;
+      var pageTitle = options.pageTitle;
+
+      if (pageTitle) {
+        state.purePageTitle = pageTitle;
+      }
+    },
+    setResource: function setResource(state, data) {
+      state.path = state.route.path;
+      if (!data.code) {
+        return;
+      }
+      if (data.code >= 200 && data.code < 400) {
+        var resource = data.result;
+        state.resource = resource;
+        var user = resource.user,
+            pageTitle = resource.pageTitle,
+            shareInfo = resource.shareInfo;
+
+        state.purePageTitle = pageTitle || '';
+        state.currentUser = user;
+        state.isLogin = !!(user && user.id);
+        state.shareInfo = shareInfo;
+        state.error = null;
+      } else {
+        var code = data.code,
+            msg = data.msg;
+
+        state.error = { code: code, msg: msg };
+        state.resource = null;
+      }
+      state.loading = false;
+    },
+    setError: function setError(state, data) {
+      state.error = data;
+      state.resource = null;
+    },
+    setCurrentUser: function setCurrentUser(state, data) {
+      state.currentUser = data;
+      state.isLogin = !!data;
+    },
+    setHasRefresh: function setHasRefresh(state, flag) {
+      state.hasRefresh = flag;
+    },
+    setShareInfo: function setShareInfo(state, shareInfo) {
+      state.shareInfo = Object.assign({}, state.shareInfo, shareInfo || {});
+    },
+    setPageTitle: function setPageTitle(state, pageTitle) {
+      state.purePageTitle = pageTitle;
+    },
+
+    // 设置背景音乐当前播放状态
+    setMusicStatus: function setMusicStatus(state, playing) {
+      state.musicPlaying = playing;
+    },
+
+    // 设置搜索关键字
+    setSearchKeyword: function setSearchKeyword(state, keyword) {
+      if (typeof keyword === 'string') {
+        state.searchKeyword = keyword;
+      }
+    },
+
+    // 打开/关闭搜索浮层
+    setSearchLayerVisible: function setSearchLayerVisible(state, visible) {
+      state.searchLayerVisible = visible;
+    },
+    setMiniProgram: function setMiniProgram(state, inMiniProgram) {
+      state.inMiniProgram = inMiniProgram;
+    }
+  },
+
+  getters: {
+    // 网络情况
+    isWifi: function isWifi(state, getters) {
+      var ua = state.ua;
+
+      var reg = /NETTYPE\/(\S+)/;
+      var match = ua.match(reg);
+      if (match) {
+        if (match[1] === 'WIFI') {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      return null;
+    },
+    pageTitle: function pageTitle(state, getters) {
+      if (state.purePageTitle && !state.inApp && !state.options.noTitleSuffix) {
+        return state.purePageTitle + '－网易美学';
+      } else {
+        return state.purePageTitle || '网易美学';
+      }
+    }
+  }
+});
+
+exports.default = store;
 
 /***/ })
 

@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+        */
+
         webView = (WebView) findViewById(R.id.web_view);
         webView.setVerticalScrollBarEnabled(false);
         webView.getSettings().setJavaScriptEnabled(true);
