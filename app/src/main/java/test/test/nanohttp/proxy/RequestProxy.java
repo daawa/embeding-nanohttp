@@ -44,11 +44,7 @@ public class RequestProxy {
             Map<String, String> hs = session.getHeaders();
             for (Map.Entry<String, String> entry : hs.entrySet()) {
                 String key = entry.getKey().toLowerCase();
-                if (key.contains("referer")
-                        || key.contains("host")
-                        || key.contains("http-client-ip")
-                        || key.contains("remote-addr")
-                        || key.contains("accept-encoding")) {
+                if (key.contains("host") || key.contains("accept-encoding")) {
                     continue;
                 }
                 builder.header(entry.getKey(), entry.getValue());
@@ -58,12 +54,12 @@ public class RequestProxy {
         }
 
         RequestBody body = null;
-        if(session.getMethod() == Method.POST){
+        if (session.getMethod() == Method.POST) {
             Map<String, String> params = session.getParms();
             body = RequestBody.create(null, getBodyString(params));
         }
 
-        builder.method(session.getMethod().name(),body)
+        builder.method(session.getMethod().name(), body)
                 .url(url);
 
         Request request = builder.build();

@@ -26,23 +26,23 @@ public class TrackerUtil {
     }
 
     public static void logRequest(Request request) {
-        log("\n");
-        log("\n");
+        log("\n ");
+        log("\n  ");
         log("=====================");
         log("\n");
 
         log("Request, url : " + request.url().url().toString());
-        log("\n");
+        log("\n ");
 
         log("\nHeaders: \n");
         for (String key : request.headers().names()) {
             log(" " + key + ": " + request.headers().get(key));
         }
 
-        log("\n");
+        log("\n ");
         log("\n=====================\n\n");
-        log("\n");
-        log("\n");
+        log("\n ");
+        log("\n ");
     }
 
     private static void log(String msg) {

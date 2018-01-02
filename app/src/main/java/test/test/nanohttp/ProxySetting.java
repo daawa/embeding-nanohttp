@@ -47,6 +47,7 @@ public class ProxySetting {
     }
 
     /**
+     * remove any proxy for this app
      * @param webView
      * @param applicationClassName
      * @return
