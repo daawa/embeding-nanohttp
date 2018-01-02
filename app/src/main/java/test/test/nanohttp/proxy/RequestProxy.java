@@ -82,7 +82,7 @@ public class RequestProxy {
 
     }
 
-    public static org.nanohttpd.protocols.http.response.Response convert2NanoResponse(Response response) {
+    public static org.nanohttpd.protocols.http.response.Response convertOkResponse2NanoResponse(Response response) {
         if (response == null) return null;
 
         org.nanohttpd.protocols.http.response.Response nanoResponse;

@@ -37,7 +37,7 @@ public class NanoHandler implements IHandler<IHTTPSession, Response> {
         Map<String, String> headers = session.getHeaders();
 
         Response response1 = serveStatic(uri, headers);
-        response1 = response1 == null ? RequestProxy.convert2NanoResponse(RequestProxy.proxyReq(session)) : response1;
+        response1 = response1 == null ? RequestProxy.convertOkResponse2NanoResponse(RequestProxy.proxyReq(session)) : response1;
         if (response1 != null) {
             return response1;
         }
