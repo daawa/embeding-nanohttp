@@ -39,7 +39,7 @@ public class App extends Application {
         ip = getWifiAddress();
         Log.w(TAG, "wifi address:" + ip);
         HOST = ip;
-        server = new HelloServer(this, ip);
+        server = new HelloServer(this, "localhost");
 
         try {
             server.start();

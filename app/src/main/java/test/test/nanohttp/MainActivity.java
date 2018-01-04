@@ -124,13 +124,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //ProxySetting.setProxy(webView,"10.242.114.79", 8888, App.class.getName());
-        //ProxySetting.revertBackProxy(webView,App.class.getName());
+        ProxySetting.revertBackProxy(webView,App.class.getName());
 
         if(App.server.wasStarted()) {
             webView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    webView.loadUrl("http://" + App.me.HOST+ ":8080/www/index.html");
+                    //App.me.HOST
+                    webView.loadUrl("http://localhost" + ":8080/www/index.html");
                 }
             }, 20);
         } else {
