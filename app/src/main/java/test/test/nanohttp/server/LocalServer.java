@@ -8,21 +8,15 @@ import org.nanohttpd.util.ServerRunner;
 
 import java.util.logging.Logger;
 
-public class HelloServer extends NanoHTTPD {
-
-    /**
-     * logger to log to.
-     */
-    private static final Logger LOG = Logger.getLogger(HelloServer.class.getName());
+public class LocalServer extends NanoHTTPD {
 
     public static void main(String[] args) {
-        ServerRunner.run(HelloServer.class);
+        ServerRunner.run(LocalServer.class);
     }
 
-    public HelloServer(Context context, String ip) {
-        super(ip, 8080);
+    public LocalServer(Context context, String host, int port) {
+        super(host, port);
         setHTTPHandler(new NanoHandler(context));
-
     }
 
 }

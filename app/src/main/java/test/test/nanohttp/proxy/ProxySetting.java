@@ -1,4 +1,4 @@
-package test.test.nanohttp;
+package test.test.nanohttp.proxy;
 
 import android.content.Context;
 import android.content.Intent;

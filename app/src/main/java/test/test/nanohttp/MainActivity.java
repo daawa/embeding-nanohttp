@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.Proxy;
 import android.net.ProxyInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -21,16 +19,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import test.test.nanohttp.proxy.ProxySetting;
 
 public class MainActivity extends AppCompatActivity {
 

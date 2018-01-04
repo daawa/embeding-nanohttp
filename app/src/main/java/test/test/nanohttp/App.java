@@ -13,7 +13,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-import test.test.nanohttp.server.HelloServer;
+import test.test.nanohttp.server.LocalServer;
 import test.test.nanohttp.server.TrackerUtil;
 
 /**
@@ -23,10 +23,11 @@ import test.test.nanohttp.server.TrackerUtil;
 public class App extends Application {
 
     private static final String TAG = "App";
-    public static HelloServer server;
+    public static LocalServer server;
 
     public static App me;
     public String HOST;
+    public int PORT;
 
     @Override
     public void onCreate() {
@@ -34,12 +35,19 @@ public class App extends Application {
         me = this;
         TrackerUtil.start("server booting");
 
+        // todo: randomize port value
+        PORT = 8080;
+
         String ip = getLocalAddress();
         Log.w(TAG, "local address:" + ip);
         ip = getWifiAddress();
         Log.w(TAG, "wifi address:" + ip);
         HOST = ip;
-        server = new HelloServer(this, "localhost");
+        if(! BuildConfig.DEBUG){
+            HOST = "localhost";
+        }
+
+        server = new LocalServer(this, HOST, PORT);
 
         try {
             server.start();
