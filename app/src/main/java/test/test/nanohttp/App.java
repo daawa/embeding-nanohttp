@@ -36,7 +36,7 @@ public class App extends Application {
         TrackerUtil.start("server booting");
 
         // todo: randomize port value
-        PORT = 8080;
+        PORT = 8090;
 
         String ip = getLocalAddress();
         Log.w(TAG, "local address:" + ip);
@@ -52,6 +52,7 @@ public class App extends Application {
         try {
             server.start();
         } catch (IOException e) {
+            // todo: try different port
             e.printStackTrace();
         }
 

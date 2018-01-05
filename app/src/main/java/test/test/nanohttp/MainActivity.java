@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //ProxySetting.setProxy(webView,"10.242.114.79", 8888, App.class.getName());
-        ProxySetting.revertBackProxy(webView,App.class.getName());
+        //ProxySetting.revertBackProxy(webView,App.class.getName());
 
         if(App.me.server.wasStarted()) {
             webView.postDelayed(new Runnable() {
