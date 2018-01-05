@@ -23,7 +23,7 @@ import test.test.nanohttp.server.TrackerUtil;
 public class App extends Application {
 
     private static final String TAG = "App";
-    public static LocalServer server;
+    public LocalServer server;
 
     public static App me;
     public String HOST;

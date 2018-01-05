@@ -117,14 +117,14 @@ public class MainActivity extends AppCompatActivity {
         //ProxySetting.setProxy(webView,"10.242.114.79", 8888, App.class.getName());
         ProxySetting.revertBackProxy(webView,App.class.getName());
 
-        if(App.server.wasStarted()) {
+        if(App.me.server.wasStarted()) {
             webView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     //App.me.HOST
-                    webView.loadUrl("http://localhost" + ":8080/www/index.html");
+                    webView.loadUrl("http://" + App.me.HOST + ":" + App.me.PORT + "/www/index.html");
                 }
-            }, 20);
+            }, 0);
         } else {
             Toast.makeText(this, " server not started. ", Toast.LENGTH_LONG).show();
         }
@@ -156,7 +156,10 @@ public class MainActivity extends AppCompatActivity {
         if(webView != null && webView.getParent() != null){
             ViewGroup vp = (ViewGroup) webView.getParent();
             vp.removeView(webView);
+            webView.destroy();
         }
+
+        App.me.server.stop();
     }
 
 
