@@ -31,12 +31,18 @@ public class RequestProxy {
             .retryOnConnectionFailure(true)
             .build();
 
-    public static Response proxyReq(IHTTPSession session) {
+    /**
+     * redirect the request of {@code session} to {@code host}
+     * @param session incoming request from local
+     * @param host remote host to which the request will be delivered to
+     * @return remote response from {@code host}
+     */
+    public static Response proxyReq(IHTTPSession session, String host) {
 
         String query = session.getQueryParameterString();
         session.getParameters();
 
-        String url = "https://m.mei.163.com" + session.getUri() + (TextUtils.isEmpty(query) ? "" : ("?" + query));
+        String url = host + session.getUri() + (TextUtils.isEmpty(query) ? "" : ("?" + query));
 
         Request.Builder builder = new Request.Builder();
 
@@ -48,8 +54,6 @@ public class RequestProxy {
                     continue;
                 }
                 builder.header(entry.getKey(), entry.getValue());
-
-                //Log.w(TAG," header key:" + entry.getKey() + "\n value: " + entry.getValue());
             }
         }
 

@@ -5,6 +5,7 @@ import android.util.Log;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
+import test.test.nanohttp.BuildConfig;
 
 /**
  * Created by zhangzhenwei on 2017/12/25.
@@ -16,16 +17,19 @@ public class TrackerUtil {
     private static final String TAG = "Tracker";
 
     public static void start(String msg) {
+        if(!isDebug()) return;
         start = System.currentTimeMillis();
         //Log.w(TAG, "" + msg + " , start at:" + start);
     }
 
     public static void end(String msg) {
+        if(!isDebug()) return;
         end = System.currentTimeMillis();
         Log.w(TAG, "" + msg + " , spent:" + (end - start) + "ms");
     }
 
     public static void logRequest(Request request) {
+        if(!isDebug()) return;
         log("\n ");
         log("\n  ");
         log("=====================");
@@ -46,10 +50,17 @@ public class TrackerUtil {
     }
 
     private static void log(String msg) {
+        if(!isDebug()) return;
         Log.w(TAG, msg);
     }
 
+    public static void log(String tag,String msg) {
+        if(!isDebug()) return;
+        Log.w(tag, msg);
+    }
+
     public static void logResponse(Response response) {
+        if(!isDebug()) return;
         Headers headers = response.headers();
         String url = response.request().url().url().toString();
 
@@ -71,6 +82,10 @@ public class TrackerUtil {
         log("\n=====================\n\n");
         log("\n");
         log("\n");
+    }
+
+    private static boolean isDebug(){
+        return BuildConfig.DEBUG;
     }
 
 }
