@@ -69,21 +69,22 @@ public class App extends Application {
     }
 
     private String getLocalAddress(){
+        String localIp = null;
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                NetworkInterface networkInterface = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = networkInterface.getInetAddresses(); enumIpAddr.hasMoreElements();) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
-                        String ip = Formatter.formatIpAddress(inetAddress.hashCode());
+                        String ip = inetAddress.getHostAddress();//Formatter.formatIpAddress(inetAddress.hashCode());
                         Log.i(TAG, "***** IP="+ ip);
-                        return ip;
+                        localIp =  ip;
                     }
                 }
             }
         } catch (SocketException ex) {
             Log.e(TAG, ex.toString());
         }
-        return null;
+        return localIp;
     }
 }
