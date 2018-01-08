@@ -18,14 +18,14 @@ public class TrackerUtil {
 
     public static void start(String msg) {
         if(!isDebug()) return;
+        log(msg);
         start = System.currentTimeMillis();
-        //Log.w(TAG, "" + msg + " , start at:" + start);
     }
 
     public static void end(String msg) {
         if(!isDebug()) return;
         end = System.currentTimeMillis();
-        Log.w(TAG, "" + msg + " , spent:" + (end - start) + "ms");
+        log(TAG, "" + msg + " , spent:" + (end - start) + "ms");
     }
 
     public static void logRequest(Request request) {

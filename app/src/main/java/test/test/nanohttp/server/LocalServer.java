@@ -6,7 +6,7 @@ import android.content.Context;
 import org.nanohttpd.protocols.http.NanoHTTPD;
 import org.nanohttpd.util.ServerRunner;
 
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 public class LocalServer extends NanoHTTPD {
 
