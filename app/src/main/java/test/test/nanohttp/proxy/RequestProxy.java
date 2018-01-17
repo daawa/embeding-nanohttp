@@ -1,6 +1,5 @@
 package test.test.nanohttp.proxy;
 
-
 import android.text.TextUtils;
 import android.util.Log;
 

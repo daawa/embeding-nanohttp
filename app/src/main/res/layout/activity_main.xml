@@ -7,30 +7,33 @@
     tools:context="test.test.nanohttp.MainActivity">
 
     <!--<EditText-->
-        <!--android:id="@+id/input"-->
-        <!--android:padding="12dp"-->
-        <!--android:text="https://m.mei.163.com/api/search/hotWords"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
+    <!--android:id="@+id/input"-->
+    <!--android:padding="12dp"-->
+    <!--android:text="https://m.mei.163.com/api/search/hotWords"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content" />-->
 
     <!--<Button-->
-        <!--android:id="@+id/button"-->
-        <!--android:layout_margin="12dp"-->
-        <!--android:text="go"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--app:layout_constraintRight_toRightOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@id/input" />-->
-
-    <WebView
-        android:id="@+id/web_view"
+    <!--android:id="@+id/button"-->
+    <!--android:layout_margin="12dp"-->
+    <!--android:text="go"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@id/input" />-->
+    <com.github.daawa.lib.viewcontainer.springcontainer.SpringContainer
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Hello World!"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"  />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <WebView
+            android:id="@+id/web_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.github.daawa.lib.viewcontainer.springcontainer.SpringContainer>
 
 </android.support.constraint.ConstraintLayout>

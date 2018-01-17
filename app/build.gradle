@@ -29,5 +29,6 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     compile project(":nanohttp-core")
+    compile 'com.github.daawa:springcontainer:1.0.0'
     testCompile 'junit:junit:4.12'
 }

@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.text.format.Formatter;
 import android.util.Log;
 
 import java.io.IOException;
